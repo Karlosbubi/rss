@@ -7,13 +7,15 @@ use iced::widget::{Column, Container, Text};
 use iced::Sandbox;
 
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Post {
     title : String,
     description : String,
     url : String,
 
-    style : PostStyle
+    style : PostStyle,
+
+    btn_state: button::State
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -36,10 +38,11 @@ struct Reader {
     btn_state: button::State
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub enum Messages {
-    Refresh
+    Refresh,
+    Open(String)
 }
 
 
@@ -68,7 +71,8 @@ impl Reader {
                 title : p.title().unwrap_or("No Title Provided").to_string(),
                 description : p.description().unwrap_or("No Description Provided").to_string(),
                 url : p.link().unwrap_or("No Link Provided").to_string(),
-                style : self.post_style
+                style : self.post_style,
+                btn_state : button::State::new()
             }).collect();
         self.log();
     }
@@ -93,8 +97,10 @@ impl Sandbox for Reader {
 
 
     fn update(&mut self, message: Self::Message) {
+        println!("Update called on reader");
         match message {
             Messages::Refresh => self.fetch(),
+            Messages::Open(url) => open(url),
         }
     }
 
@@ -134,13 +140,23 @@ impl Sandbox for Reader {
 }
 
 impl Post {
-    pub fn view(&self) -> iced::Element<Messages> {
+    pub fn view(&mut self) -> iced::Element<Messages> {
         Column::new()
         .push(Text::new(&self.title).size(self.style.text_size_title))
         .push(Text::new(&self.description).size(self.style.text_size_description))
-        .push(Text::new(&self.url).size(self.style.text_size_url))
+        .push(Button::new(&mut self.btn_state, Text::new(&self.url).size(self.style.text_size_url)).on_press(Messages::Open(self.url.to_string())))
         .spacing(self.style.spacing)
         .into()
+    }
+
+
+
+}
+
+fn open(url : String) {
+    match open::that(url.as_str()) {
+        Ok(()) => println!("Opened '{}' successfully.", url),
+        Err(err) => eprintln!("An error occurred when opening '{}': {}", url, err),
     }
 }
 
