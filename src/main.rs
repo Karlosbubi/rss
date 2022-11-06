@@ -1,5 +1,5 @@
 use iced::widget::{Column, Container, Text};
-use iced::{Sandbox, alignment, Padding};
+use iced::{alignment, Padding, Sandbox};
 use iced::{button, scrollable, Button, Row, Scrollable, Settings};
 use iced_aw::Card;
 use iced_native::Length;
@@ -23,7 +23,6 @@ struct PostStyle {
     text_size_title: u16,
     text_size_description: u16,
     text_size_url: u16,
-
     //spacing: u16,
 }
 
@@ -138,8 +137,15 @@ impl Sandbox for Reader {
             Button::new(&mut self.btn_state, Text::new("Reload")).on_press(Messages::Refresh);
 
         let head = Row::new()
-            .push(Text::new("BMG Feed").size(30).width(Length::Fill).horizontal_alignment(alignment::Horizontal::Center))
-            .push(refresh).width(Length::Fill).align_items(alignment::Alignment::Fill);
+            .push(
+                Text::new("BMG Feed")
+                    .size(30)
+                    .width(Length::Fill)
+                    .horizontal_alignment(alignment::Horizontal::Center),
+            )
+            .push(refresh)
+            .width(Length::Fill)
+            .align_items(alignment::Alignment::Fill);
 
         let reader = Column::new().push(head).push(news);
 
@@ -170,11 +176,16 @@ impl Post {
     pub fn view(&mut self) -> iced::Element<Messages> {
         Card::new(
             Text::new(&self.title).size(self.style.text_size_title),
-            Text::new(&self.description).size(self.style.text_size_description)
-        ).foot(Button::new(
-            &mut self.btn_state,
-            Text::new("Read more").size(self.style.text_size_url),
-        ).on_press(Messages::Open(self.url.to_string()))).into()
+            Text::new(&self.description).size(self.style.text_size_description),
+        )
+        .foot(
+            Button::new(
+                &mut self.btn_state,
+                Text::new("Read more").size(self.style.text_size_url),
+            )
+            .on_press(Messages::Open(self.url.to_string())),
+        )
+        .into()
     }
 }
 
