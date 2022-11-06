@@ -39,7 +39,6 @@ struct Reader {
 }
 
 #[derive(Debug, Clone)]
-#[allow(dead_code)]
 pub enum Messages {
     Refresh,
     Open(String)
@@ -148,9 +147,6 @@ impl Post {
         .spacing(self.style.spacing)
         .into()
     }
-
-
-
 }
 
 fn open(url : String) {
