@@ -154,7 +154,7 @@ impl Post {
             .push(
                 Button::new(
                     &mut self.btn_state,
-                    Text::new(&self.url).size(self.style.text_size_url),
+                    Text::new("Read more").size(self.style.text_size_url),
                 )
                 .on_press(Messages::Open(self.url.to_string())),
             )
