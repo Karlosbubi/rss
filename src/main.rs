@@ -1,7 +1,8 @@
 use iced::widget::{Column, Container, Text};
-use iced::Sandbox;
-use iced::{button, scrollable, Button, Length, Row, Scrollable, Settings};
+use iced::{Sandbox, alignment, Padding};
+use iced::{button, scrollable, Button, Row, Scrollable, Settings};
 use iced_aw::Card;
+use iced_native::Length;
 use rss::Channel;
 use std::error::Error;
 use tokio;
@@ -23,7 +24,7 @@ struct PostStyle {
     text_size_description: u16,
     text_size_url: u16,
 
-    spacing: u16,
+    //spacing: u16,
 }
 
 #[derive(Debug)]
@@ -98,7 +99,7 @@ impl Sandbox for Reader {
     }
 
     fn update(&mut self, message: Self::Message) {
-        println!("Update called on reader");
+        println!("Update called on reader : {:?}", message);
         match message {
             Messages::Refresh => self.fetch(),
             Messages::Open(url) => open(url),
@@ -117,7 +118,7 @@ impl Sandbox for Reader {
                 text_size_title: 20,
                 text_size_description: 14,
                 text_size_url: 12,
-                spacing: 8,
+                //spacing: 8,
             },
         }
     }
@@ -135,14 +136,17 @@ impl Sandbox for Reader {
 
         let refresh =
             Button::new(&mut self.btn_state, Text::new("Reload")).on_press(Messages::Refresh);
+
         let head = Row::new()
-            .push(Text::new("BMG Feed").size(30))
-            .push(refresh);
+            .push(Text::new("BMG Feed").size(30).width(Length::Fill).horizontal_alignment(alignment::Horizontal::Center))
+            .push(refresh).width(Length::Fill).align_items(alignment::Alignment::Fill);
+
         let reader = Column::new().push(head).push(news);
 
         Container::new(reader)
             .width(Length::FillPortion(2))
             .height(Length::Fill)
+            .padding(Padding::from([10, 0, 5, 0]))
             .into()
     }
 }
