@@ -1,52 +1,49 @@
-
-use std::error::Error;
-use rss::Channel;
-use tokio;
-use iced::{Settings, Length, Scrollable, scrollable, Row, Button, button};
 use iced::widget::{Column, Container, Text};
 use iced::Sandbox;
-
+use iced::{button, scrollable, Button, Length, Row, Scrollable, Settings};
+use rss::Channel;
+use std::error::Error;
+use tokio;
 
 #[derive(Debug, Clone)]
 struct Post {
-    title : String,
-    description : String,
-    url : String,
+    title: String,
+    description: String,
+    url: String,
 
-    style : PostStyle,
+    style: PostStyle,
 
-    btn_state: button::State
+    btn_state: button::State,
 }
 
 #[derive(Debug, Clone, Copy)]
 struct PostStyle {
-    text_size_title : u16,
-    text_size_description : u16,
-    text_size_url : u16,
+    text_size_title: u16,
+    text_size_description: u16,
+    text_size_url: u16,
 
-    spacing : u16
+    spacing: u16,
 }
 
 #[derive(Debug)]
 struct Reader {
-    url : String,
-    posts : Vec<Post>,
+    url: String,
+    posts: Vec<Post>,
 
-    post_style : PostStyle,
+    post_style: PostStyle,
 
     scrollable_state: scrollable::State,
-    btn_state: button::State
+    btn_state: button::State,
 }
 
 #[derive(Debug, Clone)]
 pub enum Messages {
     Refresh,
-    Open(String)
+    Open(String),
 }
 
-
 fn main() {
-    println!("{:?}",Reader::run(Settings::default()));
+    println!("{:?}", Reader::run(Settings::default()));
 }
 
 impl Reader {
@@ -61,30 +58,35 @@ impl Reader {
             post_style: PostStyle { text_size_title: 20, text_size_description: 14, text_size_url: 12, spacing : 8}
         })
     } */
-    pub fn fetch(&mut self){
+    pub fn fetch(&mut self) {
         let rt = tokio::runtime::Runtime::new().unwrap();
         let feed = rt.block_on(example_feed(self.url.to_string())).unwrap();
         //let feed = futures::executor::block_on(example_feed(self.url.to_string())).unwrap();
-        self.posts = feed.items().iter().take(20).map(|p| 
-            Post{
-                title : p.title().unwrap_or("No Title Provided").to_string(),
-                description : p.description().unwrap_or("No Description Provided").to_string(),
-                url : p.link().unwrap_or("No Link Provided").to_string(),
-                style : self.post_style,
-                btn_state : button::State::new()
-            }).collect();
+        self.posts = feed
+            .items()
+            .iter()
+            .take(20)
+            .map(|p| Post {
+                title: p.title().unwrap_or("No Title Provided").to_string(),
+                description: p
+                    .description()
+                    .unwrap_or("No Description Provided")
+                    .to_string(),
+                url: p.link().unwrap_or("No Link Provided").to_string(),
+                style: self.post_style,
+                btn_state: button::State::new(),
+            })
+            .collect();
         self.log();
     }
-    pub fn log(&self){
-        for p in self.posts.iter(){
+    pub fn log(&self) {
+        for p in self.posts.iter() {
             println!("{}", p.title);
             println!("{}", p.description);
             println!("{}", p.url);
             println!("------------------------------------------------");
         }
     }
-
-
 }
 
 impl Sandbox for Reader {
@@ -93,7 +95,6 @@ impl Sandbox for Reader {
     fn title(&self) -> String {
         String::from("BMG Feed")
     }
-
 
     fn update(&mut self, message: Self::Message) {
         println!("Update called on reader");
@@ -104,17 +105,21 @@ impl Sandbox for Reader {
     }
 
     fn new() -> Self {
-        Reader{
-            url : "https://www.bundesgesundheitsministerium.de/meldungen.xml".to_string(),
-            posts : Vec::new(),
+        Reader {
+            url: "https://www.bundesgesundheitsministerium.de/meldungen.xml".to_string(),
+            posts: Vec::new(),
 
-            scrollable_state : scrollable::State::new(),
+            scrollable_state: scrollable::State::new(),
             btn_state: button::State::new(),
 
-            post_style: PostStyle { text_size_title: 20, text_size_description: 14, text_size_url: 12, spacing : 8}
+            post_style: PostStyle {
+                text_size_title: 20,
+                text_size_description: 14,
+                text_size_url: 12,
+                spacing: 8,
+            },
         }
-        }
-    
+    }
 
     fn view(&mut self) -> iced::Element<'_, Self::Message> {
         //let post = Post{title : "Title".to_string(), description: "Description".to_string(), url : "www.url.com".to_string()};
@@ -126,9 +131,12 @@ impl Sandbox for Reader {
         for post in &mut self.posts {
             news = news.push(post.view());
         }
-        
-        let refresh = Button::new(&mut self.btn_state, Text::new("Reload")).on_press(Messages::Refresh);
-        let head = Row::new().push(Text::new("BMG Feed").size(30)).push(refresh);
+
+        let refresh =
+            Button::new(&mut self.btn_state, Text::new("Reload")).on_press(Messages::Refresh);
+        let head = Row::new()
+            .push(Text::new("BMG Feed").size(30))
+            .push(refresh);
         let reader = Column::new().push(head).push(news);
 
         Container::new(reader)
@@ -141,26 +149,29 @@ impl Sandbox for Reader {
 impl Post {
     pub fn view(&mut self) -> iced::Element<Messages> {
         Column::new()
-        .push(Text::new(&self.title).size(self.style.text_size_title))
-        .push(Text::new(&self.description).size(self.style.text_size_description))
-        .push(Button::new(&mut self.btn_state, Text::new(&self.url).size(self.style.text_size_url)).on_press(Messages::Open(self.url.to_string())))
-        .spacing(self.style.spacing)
-        .into()
+            .push(Text::new(&self.title).size(self.style.text_size_title))
+            .push(Text::new(&self.description).size(self.style.text_size_description))
+            .push(
+                Button::new(
+                    &mut self.btn_state,
+                    Text::new(&self.url).size(self.style.text_size_url),
+                )
+                .on_press(Messages::Open(self.url.to_string())),
+            )
+            .spacing(self.style.spacing)
+            .into()
     }
 }
 
-fn open(url : String) {
+fn open(url: String) {
     match open::that(url.as_str()) {
         Ok(()) => println!("Opened '{}' successfully.", url),
         Err(err) => eprintln!("An error occurred when opening '{}': {}", url, err),
     }
 }
 
-async fn example_feed(url : String) -> Result<Channel, Box<dyn Error>> {
-    let content = reqwest::get(url)
-    .await?
-    .bytes()
-    .await?;
+async fn example_feed(url: String) -> Result<Channel, Box<dyn Error>> {
+    let content = reqwest::get(url).await?.bytes().await?;
     let channel = Channel::read_from(&content[..])?;
     Ok(channel)
 }
