@@ -1,9 +1,9 @@
 
 use std::error::Error;
-use rss::{Channel};
+use rss::Channel;
 use tokio;
-use iced::{Settings, Length, Scrollable, scrollable};
-use iced::widget::{Button, Column, Container, Text};
+use iced::{Settings, Length, Scrollable, scrollable, Row, Button, button};
+use iced::widget::{Column, Container, Text};
 use iced::Sandbox;
 
 
@@ -11,7 +11,18 @@ use iced::Sandbox;
 struct Post {
     title : String,
     description : String,
-    url : String
+    url : String,
+
+    style : PostStyle
+}
+
+#[derive(Debug, Clone, Copy)]
+struct PostStyle {
+    text_size_title : u16,
+    text_size_description : u16,
+    text_size_url : u16,
+
+    spacing : u16
 }
 
 #[derive(Debug)]
@@ -19,31 +30,35 @@ struct Reader {
     url : String,
     posts : Vec<Post>,
 
+    post_style : PostStyle,
+
     scrollable_state: scrollable::State,
+    btn_state: button::State
 }
 
 #[derive(Debug, Clone, Copy)]
-enum Messages {
+#[allow(dead_code)]
+pub enum Messages {
     Refresh
 }
 
 
 fn main() {
-    println!("Hello, world!");
-    let mut rss = Reader::new("https://www.bundesgesundheitsministerium.de/meldungen.xml".to_string()).expect("Error");
-    rss.fetch();
-    rss.log();
     println!("{:?}",Reader::run(Settings::default()));
 }
 
 impl Reader {
-    pub fn new(url : String) -> Result<Reader, Box<dyn Error>> {
+    /*pub fn new(url : String) -> Result<Reader, Box<dyn Error>> {
         Ok(Reader{
             url,
             posts : Vec::new(),
-            scrollable_state: scrollable::State::new()
+
+            scrollable_state: scrollable::State::new(),
+            btn_state: button::State::new(),
+
+            post_style: PostStyle { text_size_title: 20, text_size_description: 14, text_size_url: 12, spacing : 8}
         })
-    }
+    } */
     pub fn fetch(&mut self){
         let rt = tokio::runtime::Runtime::new().unwrap();
         let feed = rt.block_on(example_feed(self.url.to_string())).unwrap();
@@ -52,8 +67,10 @@ impl Reader {
             Post{
                 title : p.title().unwrap_or("No Title Provided").to_string(),
                 description : p.description().unwrap_or("No Description Provided").to_string(),
-                url : p.link().unwrap_or("No Link Provided").to_string()
+                url : p.link().unwrap_or("No Link Provided").to_string(),
+                style : self.post_style
             }).collect();
+        self.log();
     }
     pub fn log(&self){
         for p in self.posts.iter(){
@@ -85,9 +102,14 @@ impl Sandbox for Reader {
         Reader{
             url : "https://www.bundesgesundheitsministerium.de/meldungen.xml".to_string(),
             posts : Vec::new(),
-            scrollable_state : scrollable::State::new()
+
+            scrollable_state : scrollable::State::new(),
+            btn_state: button::State::new(),
+
+            post_style: PostStyle { text_size_title: 20, text_size_description: 14, text_size_url: 12, spacing : 8}
         }
-    }
+        }
+    
 
     fn view(&mut self) -> iced::Element<'_, Self::Message> {
         //let post = Post{title : "Title".to_string(), description: "Description".to_string(), url : "www.url.com".to_string()};
@@ -99,8 +121,12 @@ impl Sandbox for Reader {
         for post in &mut self.posts {
             news = news.push(post.view());
         }
+        
+        let refresh = Button::new(&mut self.btn_state, Text::new("Reload")).on_press(Messages::Refresh);
+        let head = Row::new().push(Text::new("BMG Feed").size(30)).push(refresh);
+        let reader = Column::new().push(head).push(news);
 
-        Container::new(news)
+        Container::new(reader)
             .width(Length::FillPortion(2))
             .height(Length::Fill)
             .into()
@@ -110,10 +136,10 @@ impl Sandbox for Reader {
 impl Post {
     pub fn view(&self) -> iced::Element<Messages> {
         Column::new()
-        .push(Text::new(&self.title).size(20))
-        .push(Text::new(&self.description).size(12))
-        .push(Text::new(&self.url))
-        .spacing(8)
+        .push(Text::new(&self.title).size(self.style.text_size_title))
+        .push(Text::new(&self.description).size(self.style.text_size_description))
+        .push(Text::new(&self.url).size(self.style.text_size_url))
+        .spacing(self.style.spacing)
         .into()
     }
 }
