@@ -152,7 +152,7 @@ impl Sandbox for Reader {
         Container::new(reader)
             .width(Length::FillPortion(2))
             .height(Length::Fill)
-            .padding(Padding::from([10, 0, 5, 0]))
+            .padding(Padding::from([10, 5, 5, 0]))
             .into()
     }
 }
