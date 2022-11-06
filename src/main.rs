@@ -1,6 +1,7 @@
 use iced::widget::{Column, Container, Text};
 use iced::Sandbox;
 use iced::{button, scrollable, Button, Length, Row, Scrollable, Settings};
+use iced_aw::Card;
 use rss::Channel;
 use std::error::Error;
 use tokio;
@@ -147,7 +148,7 @@ impl Sandbox for Reader {
 }
 
 impl Post {
-    pub fn view(&mut self) -> iced::Element<Messages> {
+    /*pub fn view(&mut self) -> iced::Element<Messages> {
         Column::new()
             .push(Text::new(&self.title).size(self.style.text_size_title))
             .push(Text::new(&self.description).size(self.style.text_size_description))
@@ -160,6 +161,16 @@ impl Post {
             )
             .spacing(self.style.spacing)
             .into()
+    }*/
+
+    pub fn view(&mut self) -> iced::Element<Messages> {
+        Card::new(
+            Text::new(&self.title).size(self.style.text_size_title),
+            Text::new(&self.description).size(self.style.text_size_description)
+        ).foot(Button::new(
+            &mut self.btn_state,
+            Text::new("Read more").size(self.style.text_size_url),
+        ).on_press(Messages::Open(self.url.to_string()))).into()
     }
 }
 
