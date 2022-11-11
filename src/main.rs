@@ -1,6 +1,6 @@
-use iced::widget::{Column, Container, Text, column, Button, Row, Scrollable, };
-use iced::{alignment, Padding, Sandbox};
+use iced::widget::{column, Button, Column, Container, Row, Scrollable, Text};
 use iced::Settings;
+use iced::{alignment, Padding, Sandbox};
 use iced_aw::Card;
 use iced_native::Length;
 use rss::Channel;
@@ -14,7 +14,6 @@ struct Post {
     url: String,
 
     style: PostStyle,
-
     //btn_state: button::State,
 }
 
@@ -32,7 +31,6 @@ struct Reader {
     posts: Vec<Post>,
 
     post_style: PostStyle,
-
     //scrollable_state: scrollable::State,
     //btn_state: button::State,
 }
@@ -112,7 +110,6 @@ impl Sandbox for Reader {
 
             //scrollable_state: scrollable::State::new(),
             //btn_state: button::State::new(),
-
             post_style: PostStyle {
                 text_size_title: 20,
                 text_size_description: 14,
@@ -123,10 +120,9 @@ impl Sandbox for Reader {
     }
 
     fn view(&self) -> iced::Element<'_, Self::Message> {
-        let col = column(self.posts.iter().map(|p| {p.view().into()}).collect()).spacing(15);
+        let col = column(self.posts.iter().map(|p| p.view().into()).collect()).spacing(15);
         let news = Scrollable::new(col);
-        let refresh =
-            Button::new(Text::new("Reload")).on_press(Messages::Refresh);
+        let refresh = Button::new(Text::new("Reload")).on_press(Messages::Refresh);
         let head = Row::new()
             .push(
                 Text::new("BMG Feed")
@@ -164,14 +160,14 @@ impl Post {
 
     pub fn view(&self) -> iced::Element<Messages> {
         Card::new(
-        Text::new(&self.title).size(self.style.text_size_title),
-        Text::new(&self.description).size(self.style.text_size_description)
-        ).foot(
-            Button::new(
-            Text::new("Read more").size(self.style.text_size_url),
-            ).on_press(Messages::Open(self.url.to_string()))
-        ).into()
-
+            Text::new(&self.title).size(self.style.text_size_title),
+            Text::new(&self.description).size(self.style.text_size_description),
+        )
+        .foot(
+            Button::new(Text::new("Read more").size(self.style.text_size_url))
+                .on_press(Messages::Open(self.url.to_string())),
+        )
+        .into()
     }
 }
 
