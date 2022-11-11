@@ -1,4 +1,4 @@
-use iced::widget::{Column, Container, Text, column, button, scrollable, Button, Row, Scrollable, };
+use iced::widget::{Column, Container, Text, column, Button, Row, Scrollable, };
 use iced::{alignment, Padding, Sandbox};
 use iced::Settings;
 use iced_aw::Card;
@@ -23,7 +23,7 @@ struct PostStyle {
     text_size_title: u16,
     text_size_description: u16,
     text_size_url: u16,
-    spacing: u16,
+    //spacing: u16,
 }
 
 #[derive(Debug)]
@@ -117,7 +117,7 @@ impl Sandbox for Reader {
                 text_size_title: 20,
                 text_size_description: 14,
                 text_size_url: 12,
-                spacing: 8,
+                //spacing: 8,
             },
         }
     }
