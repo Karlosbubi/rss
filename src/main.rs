@@ -1,6 +1,6 @@
-use iced::widget::{Column, Container, Text};
+use iced::widget::{Column, Container, Text, column, button, scrollable, Button, Row, Scrollable, };
 use iced::{alignment, Padding, Sandbox};
-use iced::{button, scrollable, Button, Row, Scrollable, Settings};
+use iced::Settings;
 use iced_aw::Card;
 use iced_native::Length;
 use rss::Channel;
@@ -15,7 +15,7 @@ struct Post {
 
     style: PostStyle,
 
-    btn_state: button::State,
+    //btn_state: button::State,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -23,7 +23,7 @@ struct PostStyle {
     text_size_title: u16,
     text_size_description: u16,
     text_size_url: u16,
-    //spacing: u16,
+    spacing: u16,
 }
 
 #[derive(Debug)]
@@ -33,8 +33,8 @@ struct Reader {
 
     post_style: PostStyle,
 
-    scrollable_state: scrollable::State,
-    btn_state: button::State,
+    //scrollable_state: scrollable::State,
+    //btn_state: button::State,
 }
 
 #[derive(Debug, Clone)]
@@ -75,7 +75,7 @@ impl Reader {
                     .to_string(),
                 url: p.link().unwrap_or("No Link Provided").to_string(),
                 style: self.post_style,
-                btn_state: button::State::new(),
+                //btn_state: button::State::new(),
             })
             .collect();
         self.log();
@@ -110,32 +110,23 @@ impl Sandbox for Reader {
             url: "https://www.bundesgesundheitsministerium.de/meldungen.xml".to_string(),
             posts: Vec::new(),
 
-            scrollable_state: scrollable::State::new(),
-            btn_state: button::State::new(),
+            //scrollable_state: scrollable::State::new(),
+            //btn_state: button::State::new(),
 
             post_style: PostStyle {
                 text_size_title: 20,
                 text_size_description: 14,
                 text_size_url: 12,
-                //spacing: 8,
+                spacing: 8,
             },
         }
     }
 
-    fn view(&mut self) -> iced::Element<'_, Self::Message> {
-        //let post = Post{title : "Title".to_string(), description: "Description".to_string(), url : "www.url.com".to_string()};
-
-        let mut news = Scrollable::new(&mut self.scrollable_state)
-            .spacing(20)
-            .padding(25);
-
-        for post in &mut self.posts {
-            news = news.push(post.view());
-        }
-
+    fn view(&self) -> iced::Element<'_, Self::Message> {
+        let col = column(self.posts.iter().map(|p| {p.view().into()}).collect()).spacing(15);
+        let news = Scrollable::new(col);
         let refresh =
-            Button::new(&mut self.btn_state, Text::new("Reload")).on_press(Messages::Refresh);
-
+            Button::new(Text::new("Reload")).on_press(Messages::Refresh);
         let head = Row::new()
             .push(
                 Text::new("BMG Feed")
@@ -146,7 +137,6 @@ impl Sandbox for Reader {
             .push(refresh)
             .width(Length::Fill)
             .align_items(alignment::Alignment::Fill);
-
         let reader = Column::new().push(head).push(news);
 
         Container::new(reader)
@@ -158,13 +148,12 @@ impl Sandbox for Reader {
 }
 
 impl Post {
-    /*pub fn view(&mut self) -> iced::Element<Messages> {
+    /*pub fn view(&self) -> iced::Element<Messages> {
         Column::new()
             .push(Text::new(&self.title).size(self.style.text_size_title))
             .push(Text::new(&self.description).size(self.style.text_size_description))
             .push(
                 Button::new(
-                    &mut self.btn_state,
                     Text::new("Read more").size(self.style.text_size_url),
                 )
                 .on_press(Messages::Open(self.url.to_string())),
@@ -173,19 +162,16 @@ impl Post {
             .into()
     }*/
 
-    pub fn view(&mut self) -> iced::Element<Messages> {
+    pub fn view(&self) -> iced::Element<Messages> {
         Card::new(
-            Text::new(&self.title).size(self.style.text_size_title),
-            Text::new(&self.description).size(self.style.text_size_description),
-        )
-        .foot(
+        Text::new(&self.title).size(self.style.text_size_title),
+        Text::new(&self.description).size(self.style.text_size_description)
+        ).foot(
             Button::new(
-                &mut self.btn_state,
-                Text::new("Read more").size(self.style.text_size_url),
-            )
-            .on_press(Messages::Open(self.url.to_string())),
-        )
-        .into()
+            Text::new("Read more").size(self.style.text_size_url),
+            ).on_press(Messages::Open(self.url.to_string()))
+        ).into()
+
     }
 }
 
