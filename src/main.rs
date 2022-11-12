@@ -123,7 +123,7 @@ impl Sandbox for Reader {
 
     fn view(&self) -> iced::Element<'_, Self::Message> {
         //self.fetch();
-        let col = column(self.posts.iter().map(|p| p.view().into()).collect()).spacing(15);
+        let col = column(self.posts.iter().map(|p| p.view().into()).collect()).spacing(15).padding(15);
         let news = Scrollable::new(col);
         let refresh = Button::new(Text::new("Reload")).on_press(Messages::Refresh);
         let head = Row::new()
@@ -134,6 +134,7 @@ impl Sandbox for Reader {
                     .horizontal_alignment(alignment::Horizontal::Center),
             )
             .push(refresh)
+            .padding([5, 5, 20 , 0])
             .width(Length::Fill)
             .align_items(alignment::Alignment::Fill);
         let reader = Column::new().push(head).push(news);
