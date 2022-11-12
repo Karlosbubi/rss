@@ -104,7 +104,7 @@ impl Sandbox for Reader {
     }
 
     fn new() -> Self {
-        Reader {
+        let mut r = Reader {
             url: "https://www.bundesgesundheitsministerium.de/meldungen.xml".to_string(),
             posts: Vec::new(),
 
@@ -116,10 +116,13 @@ impl Sandbox for Reader {
                 text_size_url: 12,
                 //spacing: 8,
             },
-        }
+        };
+        r.fetch();
+        r
     }
 
     fn view(&self) -> iced::Element<'_, Self::Message> {
+        //self.fetch();
         let col = column(self.posts.iter().map(|p| p.view().into()).collect()).spacing(15);
         let news = Scrollable::new(col);
         let refresh = Button::new(Text::new("Reload")).on_press(Messages::Refresh);
