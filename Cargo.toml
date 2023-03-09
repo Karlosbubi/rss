@@ -7,11 +7,11 @@ edition = "2021"
 
 [dependencies]
 rss = "2.0"
-reqwest =  "0.11"
-tokio = {version = "1", features = ["full"]}
+reqwest = "0.11"
+tokio = { version = "1", features = ["full"] }
 futures = "0.3.25"
 iced = "0.5.2"
 #iced_aw = "0.2.0"
-iced_aw = {git = "https://github.com/genusistimelord/iced_aw"}
+iced_aw = { git = "https://github.com/genusistimelord/iced_aw" }
 iced_native = "0.6.1"
 open = "3.0.3"
